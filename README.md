@@ -29,8 +29,7 @@ After the encryption process, users gain enhanced data security and control over
 *Collaboration*: Encrypted files can be shared with authorized collaborators. Only those with the necessary decryption keys can access the original content.
 
 
-It is like a digital vault for your important files, ensuring they stay safe and private. Imagine it as a combination of a lock and a secret code. First, we divide big files into smaller parts, sort of like putting a puzzle into pieces. Then, we lock each piece using a special code that only you and your recipient know. This special code is like your personal key. Later, when you want to see your files again, we use your key to unlock and put all the puzzle pieces back together exactly as they were. This keeps your files private and intact, giving you peace of mind when storing and sharing sensitive information.
-
+It is like a digital vault for your important files, ensuring they stay safe and private. Imagine it as a combination of a lock and a secret code. First, we divide big files into smaller parts, sort of like putting a puzzle into pieces. Then, we lock each piece using a special code that only you and your recipient know. This special code is like your personal key. Later, when you want to see your files again, we use your key to unlock and put all the puzzle pieces back together exactly as they were. 
 <hr>
 <br>
 
@@ -44,75 +43,42 @@ Step 2: Run the application</br>
 
 Step 3: Visit the localhost on your browser</br>
 
-<hr>
-
-# Hybrid Cryptography
-Hybrid cryptography is a method that combines the advantages of both symmetric and asymmetric encryption to achieve secure data transmission and storage. In the code:
-
-Symmetric Encryption: AES encryption is used for file encryption (AESAlgo, AESAlgoRotated, AESGCMAlgo, AESCCMAlgo). Symmetric encryption is efficient for bulk data encryption.
-
-Asymmetric Encryption: RSA encryption is used for encrypting the keys (RSAAlgo). The keys used for symmetric encryption are encrypted with the recipient's public key (asymmetric encryption) before storage.
-
-By combining both symmetric and asymmetric encryption techniques, the code achieves the benefits of both: efficient encryption using symmetric cryptography and secure key exchange using asymmetric cryptography. This hybrid approach enhances data security and minimizes performance overhead.
 
 <hr>
 
 ### Encrypter.py
-Thia demonstrates a hybrid cryptography approach to secure data encryption. Here's a breakdown of how it uses hybrid cryptography:
+AESAlgoRotated, ChaChaAlgo, AESGCMAlgo, and AESCCMAlgo are all cryptographic algorithms that are used for the encryption and decryption of data. 
 
-*Symmetric Encryption (AES)*: The code uses the Fernet library to perform AES encryption in various modes like CBC, GCM, and CCM. AES is a symmetric encryption algorithm known for its efficiency in bulk data encryption. It secures the content of files by encrypting them with randomly generated symmetric keys (key_1_1, key_1_2, key_2, key_3, key_4). These keys are used to encrypt different parts of the data.
+AESAlgoRotated is a variant of the Advanced Encryption Standard (AES) algorithm. It is an efficient encryption algorithm widely used for bulk data encryption. The AESAlgoRotated function in the code snippet rotates the encryption algorithm used for each file in a round-robin manner. This enhances security by mitigating vulnerabilities associated with using a single encryption method. The round-robin method creates a diverse encryption environment, making it more challenging for an attacker to break the encryption.
 
-*Asymmetric Encryption (RSA)*: The RSA algorithm is used for secure key exchange and protection. The code generates an RSA key pair (private and public keys) for each encryption process. The generated keys allow encryption and decryption without sharing the same key. The RSAAlgo function demonstrates the use of asymmetric encryption, where the keys used for symmetric encryption are encrypted using both the sender's (my_private_key) and receiver's (your_public_key) public keys. This ensures that only the intended recipient can access and decrypt the encrypted symmetric keys, adding an extra layer of security.
+ChaChaAlgo is a stream cipher algorithm that generates a key stream of pseudorandom bits. These bits are XOR-ed with the plaintext to produce ciphertext. The ChaChaAlgo function in the Python code snippet encrypts the data using this algorithm. ChaChaAlgo is known for its speed and security, making it an excellent choice for applications that require fast encryption.
 
-*Combining Techniques*: The AESAlgoRotated, ChaChaAlgo, AESGCMAlgo, and AESCCMAlgo functions apply different symmetric encryption algorithms. These algorithms are rotated in a round-robin manner for different files, creating a diverse encryption environment. This practice enhances security by mitigating vulnerabilities associated with using a single encryption method.
+AESGCMAlgo is an authenticated encryption with associated data (AEAD) algorithm. It is a widely used encryption algorithm that provides both confidentiality and authenticity. The AESGCMAlgo function in the Python code snippet uses this algorithm to encrypt the data. The authenticity feature of AESGCMAlgo ensures that the encrypted data is not modified during transmission.
 
-*Key Storage and Distribution*: The code writes the encrypted symmetric keys (encryptedKeys) to a file (store_in_me.enc), protecting them with AES encryption using key_1. Additionally, the Main_Key.pem file is created, containing key_1, which is used for decryption purposes. This separation of encryption and decryption keys is a characteristic of hybrid cryptography.
+AESCCMAlgo is a mode of operation for AES that provides both confidentiality and authenticity. It is similar to AESGCMAlgo but uses a different method for generating the authentication tag. The AESCCMAlgo function in the Python code snippet uses this algorithm to encrypt the data.
 
-By combining symmetric and asymmetric encryption methods in different steps of the process, the code demonstrates a hybrid cryptography approach that effectively secures data, prevents unauthorized access, and ensures efficient transmission and storage.
-
+These cryptographic algorithms are used in the encrypter function to encrypt different parts of the data.
 <hr>
 
 ### Decryptor.py
-*Key Retrieval* The decryption process begins with retrieving the private key used for decryption. This key corresponds to the public key used during encryption and is necessary to unlock the encrypted symmetric keys.
+The symmetric keys are extracted. These keys correspond to different encryption algorithms used during encryption. For each encrypted file fragment, the corresponding decryption algorithm is determined based on metadata or patterns established during encryption.
 
-*Symmetric Key Decryption* The encrypted symmetric keys are stored in the "store_in_me.enc" file. The readEncryptedKeys function is responsible for reading these keys.
+The specific decryption algorithm is selected, and the decrypted symmetric key associated with that algorithm is used. The AESAlgoRotated, ChaChaAlgo, AESGCMAlgo, and AESCCMAlgo functions are called based on the algorithm identified for each file fragment. These functions decrypt the encrypted file content using the appropriate decryption algorithm and the decrypted symmetric key. The decrypted content is then written to individual files in the "files" directory.
 
-*Hybrid Decryption Approach* The private key is then used to decrypt the encrypted symmetric keys. This step is performed by calling the AESAlgo function, which uses the private key to decrypt the encrypted keys.
-The symmetric keys obtained from decryption are a combination of multiple keys for different algorithms.
-
-*Algorithm Identification and Decryption* The symmetric keys are extracted and split using the delimiter ":::::". These keys correspond to different encryption algorithms used during encryption.
-For each encrypted file fragment, the corresponding decryption algorithm is determined based on metadata or patterns established during encryption.
-
-*File Restoration* The specific decryption algorithm is selected, and the decrypted symmetric key associated with that algorithm is used.
-The AESAlgoRotated, ChaChaAlgo, AESGCMAlgo, and AESCCMAlgo functions are called based on the algorithm identified for each file fragment.
-These functions decrypt the encrypted file content using the appropriate decryption algorithm and the decrypted symmetric key.
-The decrypted content is then written to individual files in the "files" directory.
-
-*File Reassembly and Restoration* Once all file fragments have been decrypted and restored, the individual fragments are reassembled in the correct order to recreate the original file.
-The restored file is now available for download or further use.
-
-*Data Integrity Check* The Hybrid Cryptography approach ensures that the decrypted and restored file maintains data integrity and remains accurate.
-
-*Conclusion* The decryption process effectively reverses the encryption applied during the encryption process, allowing for the restoration of encrypted files to their original form.
-Please note that the code provided is part of a broader decryption module, and the explanation focuses on how the code handles the decryption process using the Hybrid Cryptography approach. The decryption module interacts with other modules and components, such as key retrieval and file reassembly, to achieve the overall goal of restoring encrypted files.
+Finally, the individual fragments are reassembled in the correct order to recreate the original file. This process involves combining the split files into a single file in the correct order. The restored file is now available for download or further use.
 
 <hr>
 
 ### Divider.py
-*File Selection*: The process begins by selecting a file from the "uploads" directory for division. The chosen file's name is recorded for metadata purposes.
+To split the file, the function sets a maximum chapter size of 1 MB and a memory buffer size of 50 GB. The maximum chapter size determines the size of each file chapter, while the memory buffer size determines how much data can be read from the original file at a time. These values were chosen to optimize the speed and efficiency of the file-splitting process.
 
-*Chapter Size and Buffer Management*: Files are divided into chapters, each with a predetermined maximum size. This approach enhances operational efficiency and prevents memory overloads.
-The code uses variables like MAX (chapter size) and BUF (memory buffer size) to manage the file division process effectively.
+After setting these parameters, the function reads a file located in the "uploads" folder. The location of the file is determined by using the "list_dir" function from the "tools" module to list all files in the "uploads" folder and selecting the first file in the list.
 
-*Chapter Creation and Metadata*: As the file is read, chapters are created by extracting content up to the specified chapter size. Each chapter is stored in a separate file within the "files" directory.
-Metadata about the original file's name and the total number of chapters is recorded in the "meta_data.txt" file within the "raw_data" directory.
+The function then splits the file into chapters, with each chapter being written to a separate file in the "files" folder. To achieve this, the function uses a while loop to iterate through the original file, reading data in chunks and writing each chunk to a separate file. The loop continues until the entire file has been read and split into chapters.
 
-*Buffering Strategy*: During chapter creation, an "uglybuf" is used to manage data that may exceed the current chapter size. This approach ensures that content isn't lost between chapters.
+In addition to splitting the file, the function also writes metadata about the original file to a file called "meta_data.txt" in the "raw_data" folder. This metadata includes the original file name and the number of chapters created.
 
-*Chapter Naming Convention*: Chapters are named using a consistent naming convention, such as "SECRET000001," "SECRET000002," and so on. This convention aids in organized storage and later reassembly.
-
-*Conclusion*:The file division process, implemented in the "divider" module of the Hybrid Cryptography Data Protection Framework, plays a crucial role in optimizing data handling for subsequent encryption and decryption. By breaking large files into smaller chapters and preserving essential metadata, this module contributes to an efficient and organized approach to securing and managing sensitive data.
-<hr>
+The original file name is obtained by splitting the full file path and selecting the last element of the resulting list. The number of chapters created is tracked using a counter variable called "chapters", which is incremented each time a new chapter is created.<hr>
 
 ### Restore.py
 The "restore" function uses various functions from the "tools" module to automate the file restoration process. The first step in the process is to empty the 'restored_file' folder using the "empty_folder" function. This ensures that the folder is empty and ready to receive the restored file.
@@ -126,8 +92,6 @@ Once the file path has been created, the function reads binary data from a list 
 The function then uses a nested "with" statement to open each file in the list and read its binary data. The binary data is read using the "read" method, which reads the entire contents of the file at once. The binary data is then written to the new file at the specified file path using the "write" method. The "write" method writes the binary data to the file in a single step.
 
 Once all the file chapters have been read and written to the new file, the 'files' folder is emptied using the "empty_folder" function from the "tools" module. This ensures that the folder is empty and ready to be used for future file restorations.
-
-The restoration process is an essential component of the project on hybrid cryptography. Splitting files into multiple parts and restoring them can help secure data, prevent unauthorized access, and ensure efficient transmission and storage. 
 
 
 
